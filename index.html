@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba de nivel técnico Oxygen</title>
+    <style>
+        /*Size and flow of the screen*/
+        .flex{
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        @media screen {
+            .w-50{
+                width: 50%;
+            }
+
+            .wrap-sm-screen{
+                width: 35% !important;
+            }
+        }
+
+        @media (max-width: 1000px) {
+            .w-50{
+                width: 60%;
+            }
+
+            .wrap-sm-screen{
+                width: 60% !important;
+            }
+        }
+
+        @media (max-width: 840px) {
+            .w-50{
+                width: 70%;
+            }
+
+            .wrap-sm-screen{
+                width: 70% !important;
+            }
+        }
+
+        @media (max-width: 500px) {
+            .w-50{
+                width: 90%;
+            }
+
+            .wrap-sm-screen{
+                width: 70% !important;
+            }
+        }
+
+        @media (max-width: 385px) {
+            .w-50{
+                width: 90%;
+            }
+
+            .wrap-sm-screen{
+                width: 50% !important;
+            }
+        }
+
+        .alignment-center{
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /*Color of text and objects*/
+        .purple-text{
+            color: rgb(97, 0, 97);
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+        }
+
+        .purple-bg{
+            background-color: rgb(97, 0, 97);
+            color:white;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+        }
+
+        /*Margins for different objects across the DOM*/
+        .m-0{
+            margin: 0;
+        }
+
+        .m-left, .favorite p{
+            margin-left: 0px !important;
+            margin-right: auto !important;
+        }
+
+        .m-right, .favorite button{
+            margin-right: 0px !important;
+            margin-left: auto !important;
+        }
+
+        .m-top-30{
+            margin-top: 30px;
+        }
+
+        /*Style for <br> separator and container for the converters*/
+        .grey-separator{
+            color: grey;
+            width: 300%;
+            margin-left: -100%;
+        }
+
+        .container{
+            border-radius: 20px;
+            padding: 30px;
+        }
+
+        /*Style for user inputs*/
+        .selector:focus, .selector{
+            padding-block: 5px;
+            border: 0px;
+            border-bottom-color: white;
+            border-bottom-width: 2px;
+            border-bottom-style: solid;
+            margin-left: 0;
+            outline-width: 0px;
+        }
+
+        select option{
+            color: black;
+            background-color: white;
+        }
+
+        .changer{
+            border: 0px;
+        }
+
+        /*Style for the saved conversions*/
+        .favorite-50{
+            width:calc(50% - 4px);
+        }
+
+        .favorite{
+            display: flex;
+        }
+
+        .favorite{
+            background-color: lightgray;
+            color: gray;
+            border-radius: 5px;
+            margin-block: 5px;
+            padding: 15px;
+        }
+
+        .delete{
+            background-color: transparent;
+            color: gray;
+            border: 0px;
+        }
+
+        #saved > :nth-child(odd){
+            margin-right: 4px;
+        }
+
+        #saved > :nth-child(even){
+            margin-left: 4px;
+        }
+    </style>
+</head>
+<body class="flex">
+    <div class="alignment-center w-50">
+        <div class="purple-text">
+            <p>&lt;&gt;&Tab;Conversor de Unidades</p>
+        </div>
+        <hr class="grey-separator">
+        <div class="purple-bg m-top-30 container">
+            <p class="m-0">Convertir</p>
+            <br>
+            <div class="flex">
+                <select name="converter" id="converter" class="purple-bg selector w-50 wrap-sm-screen">
+                    <option value="km-millas">Km —> Millas</option>
+                    <option value="millas-km">Millas —> Km</option>
+                    <option value="metros-pies">Metros —> Pies</option>
+                    <option value="pies-metros">Pies —> Metros</option>
+                    <option value="cm-pulgadas">Cm —> Pulgadas</option>
+                    <option value="pulgadas-cm">Pulgadas —> Cm</option>
+                </select>
+                <button id="change" class="purple-bg changer alignment-center">&lt;—&gt;</button>
+                <input id="num-input" type="number" class="purple-bg selector w-50 wrap-sm-screen">
+                <p id="unit" class="alignment-center">km</p>
+            </div>
+            <div class="flex m-top-30">
+                <p class="m-left m-0" id="save" style="font-size: 30px;">&hearts;</p>
+                <div width="100%"></div>
+                <p class="m-right m-0" id="result" class="result">0 millas</p>
+            </div>
+        </div>
+        <div class="flex" id="saved">
+
+        </div>
+    </div>
+    <script>
+        //Declare the variable where the saved conversions will be stored
+        let savedList = null;
+        let favorites = document.getElementById("saved");
+        try{
+            //Retrieve the saved items from localStorage
+            savedList = JSON.parse(localStorage.getItem("savedList"));
+            //Loop throughout the saved items to create each container
+            for(let i = 0; i < savedList.length; i++){
+                //The saved content
+                let favoriteChild = document.createElement("p");
+                favoriteChild.innerHTML = savedList[i];
+                //The delete saved element button
+                let deleteFavorite = document.createElement("button");
+                deleteFavorite.innerHTML = "X";
+                deleteFavorite.id = savedList[i];
+                deleteFavorite.addEventListener("click", function(){
+                    savedList.splice(savedList.indexOf(savedList[i]),1);
+                    localStorage.setItem("savedList", JSON.stringify(savedList));
+                    favoriteContainer.remove();
+                });
+                deleteFavorite.classList.add("delete");
+                //The element with almost all the CSS asociated with the container
+                let favorite = document.createElement("div");
+                favorite.classList.add("favorite");
+                favorite.appendChild(favoriteChild);
+                favorite.appendChild(deleteFavorite);
+                //The container  where everything will be contained (because the CSS would break the visual)
+                let favoriteContainer = document.createElement("div");
+                favoriteContainer.id = i + "_" + savedList[i];
+                favoriteContainer.classList.add("favorite-50");
+                favoriteContainer.appendChild(favorite);
+                favorites.appendChild(favoriteContainer);
+            }
+        }
+        catch(error){
+            //If the savedList doesn't exist on the localStorage, instanciate the js variable (it will be created the very moment a conversion is saved)
+            savedList = []
+        }
+        
+        let unit = " millas";//The text to show on the converted output
+        let selected = document.getElementById("converter").value;//The select element value
+        let userInput = document.getElementById("num-input");//Number user input
+
+        /**
+         * This function retrieves the conversion selected and checks
+         * which math function needs to do. It applies the conversion,
+         * multiplied by 100, rounded, and divided by 100 to have two 
+         * decimals on the returned value
+         * @param {int} unit - The number the user inputed on the field
+         * @variable {String} selected - The selected user conversion (e.g. km->miles)
+         * @return {int} unit - The number with the convertion applied
+        */
+        function convert(unit){
+            switch(selected){
+                case "km-millas":
+                    unit = Math.round(unit/1.609344*100)/100;
+                    break;
+                case "millas-km":
+                    unit = Math.round(unit*1.609344*100)/100;
+                    break;
+                case "metros-pies":
+                    unit = Math.round(unit*3.280839*100)/100;
+                    break;
+                case "pies-metros":
+                    unit = Math.round(unit/3.280839*100)/100;
+                    break;
+                case "cm-pulgadas":
+                    unit = Math.round(unit/2.54*100)/100;
+                    break;
+                case "pulgadas-cm":
+                    unit = Math.round(unit*2.54*100)/100;
+                    break;
+            }
+            return unit;
+        }
+
+        // For every time the user types a number, it applies the conversion
+        userInput.addEventListener("input", function(){
+            document.getElementById("result").innerHTML = convert(userInput.value) + unit;
+        });
+
+        //When the user changes the convertion rate, change the necessary elements
+        document.getElementById("converter").addEventListener("change", function(){
+            selected = document.getElementById("converter").value;
+            unit = " " + selected.split("-")[1];
+            document.getElementById("result").innerHTML = convert(userInput.value) + unit;
+            document.getElementById("unit").innerHTML = selected.split("-")[0];
+        });
+
+        //When the user swaps the units converted
+        document.getElementById("change").addEventListener("click", function(){
+            let result = document.getElementById("result");
+            let tempValue = result.innerHTML.split(" ")[0];
+            let tempUnit = result.innerHTML.split(" ")[1];
+            unit = " " + document.getElementById("unit").innerHTML;
+            document.getElementById("result").innerHTML = document.getElementById("num-input").value + " " + document.getElementById("unit").innerHTML;
+            document.getElementById("converter").value = tempUnit + "-" + document.getElementById("unit").innerHTML;
+            document.getElementById("num-input").value = tempValue;
+            document.getElementById("unit").innerHTML = tempUnit;
+            selected = document.getElementById("converter").value;
+        });
+
+        //Save a conversion
+        document.getElementById("save").addEventListener("click", function(){
+            let init = "0 "+document.getElementById("unit").innerHTML;
+            let result = document.getElementById("result").innerHTML;
+            //If the user number input is empty, it will be zero. If not, get the number
+            if(!document.getElementById("num-input").value==""){
+                init = document.getElementById("num-input").value + " " + document.getElementById("unit").innerHTML;
+            }
+            //How the conversion will be saved
+            result = init + "->" + result;
+            savedList.push(result);
+            localStorage.setItem("savedList", JSON.stringify(savedList));//Every time a conversion is saved, it will update the localStorage
+            //Create a container on the saved list (same case as above)
+            let favoriteChild = document.createElement("p");
+            favoriteChild.innerHTML = result;
+
+            let deleteFavorite = document.createElement("button");
+            deleteFavorite.innerHTML = "X";
+            deleteFavorite.id = result;
+            deleteFavorite.addEventListener("click", function(){
+                savedList.splice(savedList.indexOf(result),1);
+                localStorage.setItem("savedList", JSON.stringify(savedList));
+                favoriteContainer.remove();
+
+            let favorite = document.createElement("div");
+            favorite.classList.add("favorite");
+            favorite.appendChild(favoriteChild);
+            favorite.appendChild(deleteFavorite);
+
+            let favoriteContainer = document.createElement("div");
+            favoriteContainer.id = savedList.length + "_" + result;
+            favoriteContainer.classList.add("favorite-50");
+            favoriteContainer.appendChild(favorite);
+            });
+            deleteFavorite.classList.add("delete");
+            favorites.appendChild(favoriteContainer);
+
+            //Empty the number input and the result
+            document.getElementById("num-input").value = 0;
+            document.getElementById("result").innerHTML = 0 + " " + unit;
+        });
+    </script>
+</body>
+</html>
